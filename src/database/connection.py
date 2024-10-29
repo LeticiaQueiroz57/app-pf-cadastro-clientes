@@ -6,8 +6,8 @@ banco = pymongo.MongoClient(url_database)
 
 db = banco['Grupo_1']
 
-Patient = db.Patient
+
 Usuario =  db.Usuarios
-Produto = db.Produto
+
 
 

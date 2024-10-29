@@ -1,4 +1,4 @@
-from src.database.connection import Usuario, Patient
+from src.database.connection import Usuario
 from src.models.hubModel import HubModel
 from fastapi import HTTPException
 from datetime import datetime
