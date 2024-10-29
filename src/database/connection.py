@@ -1,16 +1,13 @@
-import pymongo
+import pymongo 
 
-url_database = ""
+url_database = 'mongodb+srv://m0:root@cluster0.hqp4qrc.mongodb.net/'
 
-conexao = pymongo.MongoClient(url_database)
+banco = pymongo.MongoClient(url_database)
 
-db = banco["db_hub"]
+db = banco['Grupo_1']
 
-Usuario = db.Usuario
-
+Patient = db.Patient
+Usuario =  db.Usuarios
 Produto = db.Produto
-
-
-
 
 
