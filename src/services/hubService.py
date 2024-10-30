@@ -4,9 +4,12 @@ from fastapi import HTTPException
 from datetime import datetime
 
 class HubService:
-    async def ListarTodos() -> list:
+    async def ListarTodos(filtro) -> list:
         try:
-            return list(Usuario.find())
+            if filtro ==  None:
+                return list(Usuario.find())
+            else:
+                return list(Usuario.find({"usuariTipo": filtro.usuarioTipo}))   
         except Exception as error:
             raise HTTPException(400, detail=error)
     
@@ -24,7 +27,8 @@ class HubService:
                 "sobrenome": hubModel.sobrenome,
                 "email": hubModel.email,
                 "telefone": hubModel.telefone,
-                "datacricao": datetime.now()
+                "datacricao": datetime.now(),
+                "tipoUsraio": "user"
             }
             Usuario.insert_one(hub)
         except Exception as error:
@@ -51,3 +55,23 @@ class HubService:
             raise HTTPException(400, detail=str(error))
         
     
+
+    @staticmethod
+    async def AtualizarCliente(user_id: int, dados_atualizados: HubModel):
+        try:
+            resultado = Usuario.update_one(
+                {"id": user_id},
+                {"$set": {
+                    "nome": dados_atualizados.nome,
+                    "sobrenome": dados_atualizados.sobrenome,
+                    "email": dados_atualizados.email,
+                    "telefone": dados_atualizados.telefone,
+                    "dataatualizacao": datetime.now()
+                }}
+            )
+            if resultado.modified_count == 0:
+                raise HTTPException(status_code=404, detail="Cliente não encontrado")
+            return {"message": "Usuário atualizado com sucesso"}
+        
+        except Exception as error:
+            raise HTTPException(status_code=400, detail=str(error))

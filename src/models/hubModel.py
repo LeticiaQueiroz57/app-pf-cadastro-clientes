@@ -27,3 +27,8 @@ class HubModel(BaseModel):
         except EmailNotValidError as error:
             raise ValueError(str(error))
         return value
+    
+class Filtro(BaseModel):
+    nome: str
+    email: str
+    phone: str
