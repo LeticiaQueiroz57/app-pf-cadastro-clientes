@@ -2,6 +2,8 @@ from src.database.connection import Usuario
 from src.models.hubModel import HubModel
 from fastapi import HTTPException
 from datetime import datetime
+from typing import Optional
+
 
 class HubService:
     async def ListarTodos(filtro) -> list:
@@ -44,19 +46,38 @@ class HubService:
         except Exception as error:
             raise HTTPException(400, detail=str(error))
         
-    async def  BuscarUsuario(user_id: int):
+ 
+
+ 
+
+    async def BuscarUsuario(user_id: Optional[int] = None, nome: Optional[str] = None, email: Optional[str] = None, telefone: Optional[str] = None):
         try:
-            resultado = Usuario.find_one({"id": user_id})
-            if resultado is None:
-                raise HTTPException(status_code=404, detail="Usuário não encontrado")
-            resultado["_id"] = str(resultado["_id"])
-            return resultado
+            filtro = {}
+            if user_id is not None:
+                filtro["id"] = user_id
+            if nome is not None:
+                filtro["nome"] = nome
+            if email is not None:
+                filtro["email"] = email
+            if telefone is not None:
+                filtro["telefone"] = telefone
+            if not filtro:
+                resultados = Usuario.find()  
+            else:
+                resultados = Usuario.find(filtro)  
+            usuarios = []
+            for resultado in resultados:
+                resultado["_id"] = str(resultado["_id"])
+                usuarios.append(resultado)
+            return usuarios
         except Exception as error:
-            raise HTTPException(400, detail=str(error))
+            raise HTTPException(status_code=400, detail=str(error))
+
+
         
     
 
-    @staticmethod
+    
     async def AtualizarCliente(user_id: int, dados_atualizados: HubModel):
         try:
             resultado = Usuario.update_one(

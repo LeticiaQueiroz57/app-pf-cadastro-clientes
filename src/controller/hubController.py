@@ -2,13 +2,13 @@ from fastapi import APIRouter, HTTPException
 from src.models.hubModel import HubModel, Filtro
 from src.services.hubService import HubService
 from src.models.respostasModel import Resposta
-
+from typing import Optional, List
 
 app_router = APIRouter(prefix="/hub")
 
 @app_router.get("/list", status_code=200, tags=["Usuários"])
-async def ListarTodos(filto: Filtro):
-    resposta = await HubService.ListarTodos(filto)
+async def ListarTodos(filtro: Filtro):
+    resposta = await HubService.ListarTodos(filtro)
     return Resposta(resposta)
 
 @app_router.post('/criar', status_code=200, tags=["Usuários"])
@@ -19,9 +19,17 @@ async def CriarDados(hubModel: HubModel):
 async def RemoverUsuario(user_id: int):
     return await HubService.RemoverUsuario(user_id)
 
-@app_router.get("/pegar_um", status_code=200, tags= ["Usuários"])
-async def BuscarUsuario(user_id: int):
-    return await HubService.BuscarUsuario(user_id)
+
+
+@app_router.get("/pegar_um", status_code=200, tags=["Usuários"])
+async def BuscarUsuario(
+    user_id: Optional[int] = None, 
+    nome: Optional[str] = None, 
+    email: Optional[str] = None, 
+    telefone: Optional[str] = None
+):
+    return await HubService.BuscarUsuario(user_id=user_id, nome=nome, email=email, telefone=telefone)
+
 
 
 @app_router.post("/AtualizarUm", status_code=200, tags=["Usuários"])
