@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, field_validator
 from email_validator import validate_email, EmailNotValidError
 
-class HubModel(BaseModel):
+class userModel(BaseModel):
     nome: str = Field(..., description="nome não pode ser nulo")
     sobrenome: str = Field(..., description="sobrenome não pode ser nulo")
     email: str = Field(..., description="email válido é necessário")
@@ -28,7 +28,3 @@ class HubModel(BaseModel):
             raise ValueError(str(error))
         return value
     
-class Filtro(BaseModel):
-    nome: str
-    email: str
-    phone: str

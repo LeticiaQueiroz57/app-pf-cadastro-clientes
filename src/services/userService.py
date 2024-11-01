@@ -1,21 +1,13 @@
 from src.database.connection import Usuario
-from src.models.hubModel import HubModel
+from src.models.userModel import userModel
 from fastapi import HTTPException
 from datetime import datetime
 from typing import Optional
 
 
-class HubService:
-    async def ListarTodos(filtro) -> list:
-        try:
-            if filtro ==  None:
-                return list(Usuario.find())
-            else:
-                return list(Usuario.find({"usuariTipo": filtro.usuarioTipo}))   
-        except Exception as error:
-            raise HTTPException(400, detail=error)
-    
-    async def CriarDados(hubModel: HubModel):
+class userService:
+
+    async def CriarDados(userModel: userModel):
         try:
             
             number = Usuario.estimated_document_count()
@@ -25,16 +17,18 @@ class HubService:
                 id = 1  
             hub = {
                 "id": id,
-                "nome": hubModel.nome,
-                "sobrenome": hubModel.sobrenome,
-                "email": hubModel.email,
-                "telefone": hubModel.telefone,
+                "nome": userModel.nome,
+                "sobrenome": userModel.sobrenome,
+                "email": userModel.email,
+                "telefone": userModel.telefone,
                 "datacricao": datetime.now(),
-                "tipoUsraio": "user"
+                
             }
             Usuario.insert_one(hub)
-        except Exception as error:
-            raise HTTPException(400, detail=error)
+            return {"message": "Dados criados com sucesso"}
+        except Exception:
+            raise HTTPException(status_code=400, detail="Erro ao criar dados")
+        
             
     
     async def RemoverUsuario(user_id: int):
@@ -69,7 +63,11 @@ class HubService:
             for resultado in resultados:
                 resultado["_id"] = str(resultado["_id"])
                 usuarios.append(resultado)
-            return usuarios
+            
+            if len(usuarios) == 0:
+                raise HTTPException(status_code=404, detail="Usuário não encontrado")
+            
+            return usuarios 
         except Exception as error:
             raise HTTPException(status_code=400, detail=str(error))
 
@@ -78,7 +76,7 @@ class HubService:
     
 
     
-    async def AtualizarCliente(user_id: int, dados_atualizados: HubModel):
+    async def AtualizarCliente(user_id: int, dados_atualizados: userModel):
         try:
             resultado = Usuario.update_one(
                 {"id": user_id},
@@ -91,7 +89,7 @@ class HubService:
                 }}
             )
             if resultado.modified_count == 0:
-                raise HTTPException(status_code=404, detail="Cliente não encontrado")
+                raise HTTPException(status_code=404, detail="Usuário não encontrado")
             return {"message": "Usuário atualizado com sucesso"}
         
         except Exception as error:
