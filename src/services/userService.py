@@ -78,6 +78,10 @@ class userService:
     
     async def AtualizarCliente(user_id: int, dados_atualizados: userModel):
         try:
+            cliente_existente = Usuario.find_one({"id": user_id})
+            if not cliente_existente:
+                raise HTTPException(status_code=404, detail="Usuario não encontrado")
+            
             resultado = Usuario.update_one(
                 {"id": user_id},
                 {"$set": {
@@ -88,9 +92,11 @@ class userService:
                     "dataatualizacao": datetime.now()
                 }}
             )
-            if resultado.modified_count == 0:
-                raise HTTPException(status_code=404, detail="Usuário não encontrado")
-            return {"message": "Usuário atualizado com sucesso"}
+
+            if resultado.matched_count == 0:
+                raise HTTPException(status_code=400, detail="Erro ao atualizar o usuario")
+            
+            return {"message": "Usuario atualizado com sucesso!"}
         
         except Exception as error:
             raise HTTPException(status_code=400, detail=str(error))
