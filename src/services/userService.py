@@ -10,11 +10,13 @@ class userService:
     async def CriarDados(userModel: userModel):
         try:
             
-            number = Usuario.estimated_document_count()
-            if number >= 1:
-                id = number + 1
+            ultimo_usuario = Usuario.find_one(sort=[("id", -1)])
+            
+            if ultimo_usuario:
+                id = ultimo_usuario["id"] + 1
             else:
-                id = 1  
+                id = 1
+            
             hub = {
                 "id": id,
                 "nome": userModel.nome,
@@ -22,12 +24,12 @@ class userService:
                 "email": userModel.email,
                 "telefone": userModel.telefone,
                 "datacricao": datetime.now(),
-                
             }
             Usuario.insert_one(hub)
             return {"message": "Dados criados com sucesso"}
         except Exception:
             raise HTTPException(status_code=400, detail="Erro ao criar dados")
+
         
             
     
