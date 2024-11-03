@@ -10,25 +10,34 @@ class userService:
     async def CriarDados(userModel: userModel):
         try:
             
-            ultimo_usuario = Usuario.find_one(sort=[("id", -1)])
+            email_duplicado = Usuario.find_one({"email": userModel.email})
+            if email_duplicado:
+                raise HTTPException(status_code=400, detail="Já existe um usuário com este email")
+
             
+            telefone_duplicado = Usuario.find_one({"telefone": userModel.telefone})
+            if telefone_duplicado:
+                raise HTTPException(status_code=400, detail="Já existe um usuário com este telefone")
+
+            ultimo_usuario = Usuario.find_one(sort=[("id", -1)])
             if ultimo_usuario:
                 id = ultimo_usuario["id"] + 1
             else:
                 id = 1
-            
+
             hub = {
                 "id": id,
                 "nome": userModel.nome,
                 "sobrenome": userModel.sobrenome,
-                "email": userModel.email,
+                 "email": userModel.email,
                 "telefone": userModel.telefone,
                 "datacricao": datetime.now(),
-            }
+                }
+
             Usuario.insert_one(hub)
             return {"message": "Dados criados com sucesso"}
-        except Exception:
-            raise HTTPException(status_code=400, detail="Erro ao criar dados")
+        except Exception as error:
+            raise HTTPException(status_code=400, detail=f"Erro ao criar dados: {str(error)}")
 
         
             
@@ -80,10 +89,20 @@ class userService:
     
     async def AtualizarCliente(user_id: int, dados_atualizados: userModel):
         try:
+            
             cliente_existente = Usuario.find_one({"id": user_id})
             if not cliente_existente:
                 raise HTTPException(status_code=404, detail="Usuario não encontrado")
-            
+
+            email_duplicado = Usuario.find_one({"email": dados_atualizados.email, "id": {"$ne": user_id}})
+            if email_duplicado:
+                raise HTTPException(status_code=400, detail="Já existe um usuário com este email")
+
+            telefone_duplicado = Usuario.find_one({"telefone": dados_atualizados.telefone, "id": {"$ne": user_id}})
+            if telefone_duplicado:
+                raise HTTPException(status_code=400, detail="Já existe um usuário com este telefone")
+
+
             resultado = Usuario.update_one(
                 {"id": user_id},
                 {"$set": {
@@ -99,6 +118,6 @@ class userService:
                 raise HTTPException(status_code=400, detail="Erro ao atualizar o usuario")
             
             return {"message": "Usuario atualizado com sucesso!"}
-        
+
         except Exception as error:
             raise HTTPException(status_code=400, detail=str(error))
