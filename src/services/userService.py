@@ -29,7 +29,7 @@ class userService:
                 "id": id,
                 "nome": userModel.nome,
                 "sobrenome": userModel.sobrenome,
-                 "email": userModel.email,
+                 "email": userModel.email.lower(),
                 "telefone": userModel.telefone,
                 "datacricao": datetime.now(),
                 }
@@ -87,37 +87,53 @@ class userService:
     
 
     
-    async def AtualizarCliente(user_id: int, dados_atualizados: userModel):
-        try:
-            
-            cliente_existente = Usuario.find_one({"id": user_id})
-            if not cliente_existente:
-                raise HTTPException(status_code=404, detail="Usuario não encontrado")
+    from fastapi import HTTPException
+from datetime import datetime
 
-            email_duplicado = Usuario.find_one({"email": dados_atualizados.email, "id": {"$ne": user_id}})
-            if email_duplicado:
-                raise HTTPException(status_code=400, detail="Já existe um usuário com este email")
+async def AtualizarCliente(user_id: int, dados_atualizados: userModel):
+    try:
+        # Verifica se o usuário existe
+        cliente_existente = Usuario.find_one({"id": user_id})
+        if not cliente_existente:
+            raise HTTPException(status_code=404, detail="Usuário não encontrado")
 
-            telefone_duplicado = Usuario.find_one({"telefone": dados_atualizados.telefone, "id": {"$ne": user_id}})
-            if telefone_duplicado:
-                raise HTTPException(status_code=400, detail="Já existe um usuário com este telefone")
+        # Verifica se o email já está em uso por outro usuário
+        email_duplicado = Usuario.find_one({"email": dados_atualizados.email, "id": {"$ne": user_id}})
+        if email_duplicado:
+            raise HTTPException(status_code=400, detail="Já existe um usuário com este email")
 
+        # Verifica se o telefone já está em uso por outro usuário
+        telefone_duplicado = Usuario.find_one({"telefone": dados_atualizados.telefone, "id": {"$ne": user_id}})
+        if telefone_duplicado:
+            raise HTTPException(status_code=400, detail="Já existe um usuário com este telefone")
 
-            resultado = Usuario.update_one(
-                {"id": user_id},
-                {"$set": {
-                    "nome": dados_atualizados.nome,
-                    "sobrenome": dados_atualizados.sobrenome,
-                    "email": dados_atualizados.email,
-                    "telefone": dados_atualizados.telefone,
-                    "dataatualizacao": datetime.now()
-                }}
+        # Atualiza somente os campos preenchidos
+        atualazar = {}
+
+        if dados_atualizados.nome:
+            atualazar["nome"] = dados_atualizados.nome
+
+        if dados_atualizados.sobrenome:
+            atualazar["sobrenome"] = dados_atualizados.sobrenome
+
+        if dados_atualizados.email:
+            atualazar["email"] = dados_atualizados.email
+
+        if dados_atualizados.telefone:
+            atualazar["telefone"] = dados_atualizados.telefone
+
+        # Define a data de atualização
+        atualazar["dateatualizacao"] = datetime.now()
+
+        # Executa a atualização se houver dados a atualizar
+        if atualazar:
+            Usuario.update_one(
+                { "id": user_id },
+                { 
+                    "$set": atualazar
+                }
             )
-
-            if resultado.matched_count == 0:
-                raise HTTPException(status_code=400, detail="Erro ao atualizar o usuario")
-            
-            return {"message": "Usuario atualizado com sucesso!"}
-
-        except Exception as error:
-            raise HTTPException(status_code=400, detail=str(error))
+        else:
+            raise HTTPException(400, detail="Nenhum campo foi preenchido para atualização.")
+    except Exception as error:
+        raise HTTPException(400, detail=str(error))
