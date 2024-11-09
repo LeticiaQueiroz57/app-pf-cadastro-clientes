@@ -14,7 +14,7 @@ class userModel(BaseModel):
         try:
             validate_email(email)
         except EmailNotValidError as e:
-            raise ValueError("O email contém caracteres inválidos")  # Mensagem personalizada
+            raise ValueError("O email contém caracteres inválidos")  
         return values
 
     @model_validator(mode="before")
