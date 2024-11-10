@@ -1,0 +1,35 @@
+from fastapi import APIRouter, HTTPException, Query, Body
+from src.models.userModel import userModel
+from src.services.userService import userService
+from src.models.respostasModel import Resposta
+from typing import Optional, List
+
+app_router = APIRouter(prefix="/user")
+
+
+@app_router.post('/criar', status_code=200, tags=["Usuários"])
+async def CriarDados(userModel: userModel):
+    try:
+        return await userService.CriarDados(userModel)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))  # Garantir que o erro de validação retorne 422
+
+
+@app_router.delete("/remover", status_code=200, tags=["Usuários"])
+async def RemoverUsuario(user_id: int):
+    return await userService.RemoverUsuario(user_id)
+
+@app_router.get("/listarUsers", status_code=200, tags=["Usuários"])
+async def BuscarUsuario(
+    user_id: Optional[int] = None, 
+    nome: Optional[str] = None, 
+    email: Optional[str] = None, 
+    telefone: Optional[str] = None
+):
+    return await userService.BuscarUsuario(user_id=user_id, nome=nome, email=email, telefone=telefone)
+
+
+
+@app_router.post("/AtualizarUm", status_code=200, tags=["Usuários"])
+async def AtualizarCliente(user_id: int, dados_atualizados: userModel):
+    return await userService.AtualizarCliente(user_id, dados_atualizados)
