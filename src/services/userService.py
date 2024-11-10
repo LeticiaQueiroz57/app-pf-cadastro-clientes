@@ -9,6 +9,11 @@ class userService:
 
     async def CriarDados(userModel: userModel):
         try:
+            if len(userModel.email) > 20:
+                raise HTTPException(status_code=400, detail="O email não pode ter mais de 20 caracteres")
+            if len(userModel.telefone) > 11:
+                raise HTTPException(status_code=400, detail="O telefone não pode ter mais de 11 caracteres")
+                
             email_duplicado = Usuario.find_one({"email": userModel.email.lower()})
             if email_duplicado:
                 raise HTTPException(status_code=400, detail="Já existe um usuário com este email")
