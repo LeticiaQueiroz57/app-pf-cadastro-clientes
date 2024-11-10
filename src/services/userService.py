@@ -11,6 +11,7 @@ class userService:
         try:
             if len(userModel.email) > 20:
                 raise HTTPException(status_code=400, detail="O email não pode ter mais de 20 caracteres")
+                
             if len(userModel.telefone) > 11:
                 raise HTTPException(status_code=400, detail="O telefone não pode ter mais de 11 caracteres")
                 
