@@ -84,6 +84,9 @@ class userService:
     async def AtualizarCliente(user_id: int, dados_atualizados: userModel):
         try:
             
+            if not re.fullmatch(r'\d+', dados_atualizados.telefone):
+                raise HTTPException(status_code=400, detail="O número de telefone deve conter apenas números")
+                
             if not re.match(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", dados_atualizados.email):
                 raise HTTPException(status_code=422, detail="O email contém caracteres inválidos")
 
