@@ -15,6 +15,9 @@ class userService:
 
             if not re.fullmatch(r'\d+', userModel.telefone):
                 raise HTTPException(status_code=400, detail="O número de telefone deve conter apenas números")
+            
+            if not re.match(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", userModel.email):
+                raise HTTPException(status_code=422, detail="O email contém caracteres inválidos")
 
             telefone_duplicado = Usuario.find_one({"telefone": userModel.telefone})
             if telefone_duplicado:
@@ -34,6 +37,8 @@ class userService:
 
             Usuario.insert_one(hub)
             return {"message": "Dados criados com sucesso"}
+        except HTTPException as error:
+            raise error
         except Exception as error:
             raise HTTPException(status_code=400, detail=f"Erro ao criar dados: {str(error)}")
 
@@ -73,17 +78,20 @@ class userService:
     async def AtualizarCliente(user_id: int, dados_atualizados: userModel):
         try:
             
+            if not re.match(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", dados_atualizados.email):
+                raise HTTPException(status_code=422, detail="O email contém caracteres inválidos")
+
             cliente_existente = Usuario.find_one({"id": user_id})
             if not cliente_existente:
                 raise HTTPException(status_code=404, detail="Usuario não encontrado")
             
             email_duplicado = Usuario.find_one({"email": dados_atualizados.email, "id": {"$ne": user_id}})
             if email_duplicado:
-                raise HTTPException(status_code=400, detail="Já existe um usuário com este email")
+                raise HTTPException(status_code=422, detail="Já existe um usuário com este email")
 
             telefone_duplicado = Usuario.find_one({"telefone": dados_atualizados.telefone, "id": {"$ne": user_id}})
             if telefone_duplicado:
-                raise HTTPException(status_code=400, detail="Já existe um usuário com este telefone")
+                raise HTTPException(status_code=422, detail="Já existe um usuário com este telefone")
 
 
             resultado = Usuario.update_one(
@@ -96,9 +104,8 @@ class userService:
                     "dataatualizacao": datetime.now()
                 }}
             )
-
             if resultado.matched_count == 0:
-                raise HTTPException(status_code=400, detail="Erro ao atualizar o usuario")
+                raise HTTPException(status_code=422, detail="Erro ao atualizar o usuario")
             
             return {"message": "Usuario atualizado com sucesso!"}
 

@@ -1,4 +1,4 @@
-#!/home/joao/Documentos/Projeto_Devops/venv/bin/python
+#!/home/joao/Imagens/Projeto_Devops/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
