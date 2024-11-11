@@ -121,26 +121,26 @@ class userService:
                 raise HTTPException(status_code=422, detail="Já existe um usuário com este telefone")
 
 
-            update_data = {}
+            atualizar = {}
 
             if dados_atualizados.nome:
-                update_data["nome"] = dados_atualizados.nome
+                atualizar["nome"] = dados_atualizados.nome
             
             if dados_atualizados.sobrenome:
-                update_data["sobrenome"] = dados_atualizados.sobrenome
+                atualizar["sobrenome"] = dados_atualizados.sobrenome
             
             if dados_atualizados.email:
-                update_data["email"] = dados_atualizados.email.lower()
+                atualizar["email"] = dados_atualizados.email.lower()
             
             if dados_atualizados.telefone:
-                update_data["telefone"] = dados_atualizados.telefone
+                atualizar["telefone"] = dados_atualizados.telefone
             
-            update_data["dataatualizacao"] = datetime.now()
+            atualizar["dataatualizacao"] = datetime.now()
 
-            if update_data:
+            if atualizar:
                 resultado = Usuario.update_one(
                     {"id": user_id},
-                    {"$set": update_data}
+                    {"$set": atualizar}
                 )
                 
                 if resultado.matched_count == 0:
