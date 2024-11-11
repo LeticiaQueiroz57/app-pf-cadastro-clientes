@@ -9,6 +9,17 @@ class userService:
 
     async def CriarDados(userModel: userModel):
         try:
+
+
+            if not userModel.nome or userModel.nome.strip() == "":
+                raise HTTPException(status_code=400, detail="O nome não pode ser vazio")
+            if not userModel.sobrenome or userModel.sobrenome.strip() == "":
+                raise HTTPException(status_code=400, detail="O sobrenome não pode ser vazio")
+            if not userModel.email or userModel.email.strip() == "":
+                raise HTTPException(status_code=400, detail="O email não pode ser vazio")
+            if not userModel.telefone or userModel.telefone.strip() == "":
+                raise HTTPException(status_code=400, detail="O telefone não pode ser vazio")
+            
             if len(userModel.email) > 20:
                 raise HTTPException(status_code=400, detail="O email não pode ter mais de 20 caracteres")
                 
@@ -81,19 +92,26 @@ class userService:
         except Exception as error:
             raise HTTPException(status_code=400, detail=str(error))
 
+    
+ 
     async def AtualizarCliente(user_id: int, dados_atualizados: userModel):
         try:
+
             
-            if not re.fullmatch(r'\d+', dados_atualizados.telefone):
+            if dados_atualizados.email and len(dados_atualizados.email) > 20:
+                raise HTTPException(status_code=400, detail="O email não pode ter mais de 20 caracteres")
+            
+            
+            if dados_atualizados.telefone and len(dados_atualizados.telefone) > 11:
+                raise HTTPException(status_code=400, detail="O telefone não pode ter mais de 11 caracteres")
+
+
+            if dados_atualizados.telefone and not re.fullmatch(r'\d+', dados_atualizados.telefone):
                 raise HTTPException(status_code=400, detail="O número de telefone deve conter apenas números")
-                
-            if not re.match(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", dados_atualizados.email):
+
+            if dados_atualizados.email and not re.match(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", dados_atualizados.email):
                 raise HTTPException(status_code=422, detail="O email contém caracteres inválidos")
 
-            cliente_existente = Usuario.find_one({"id": user_id})
-            if not cliente_existente:
-                raise HTTPException(status_code=404, detail="Usuario não encontrado")
-            
             email_duplicado = Usuario.find_one({"email": dados_atualizados.email, "id": {"$ne": user_id}})
             if email_duplicado:
                 raise HTTPException(status_code=422, detail="Já existe um usuário com este email")
@@ -103,20 +121,34 @@ class userService:
                 raise HTTPException(status_code=422, detail="Já existe um usuário com este telefone")
 
 
-            resultado = Usuario.update_one(
-                {"id": user_id},
-                {"$set": {
-                    "nome": dados_atualizados.nome,
-                    "sobrenome": dados_atualizados.sobrenome,
-                    "email": dados_atualizados.email.lower(),
-                    "telefone": dados_atualizados.telefone,
-                    "dataatualizacao": datetime.now()
-                }}
-            )
-            if resultado.matched_count == 0:
-                raise HTTPException(status_code=422, detail="Erro ao atualizar o usuario")
+            update_data = {}
+
+            if dados_atualizados.nome:
+                update_data["nome"] = dados_atualizados.nome
             
-            return {"message": "Usuario atualizado com sucesso!"}
+            if dados_atualizados.sobrenome:
+                update_data["sobrenome"] = dados_atualizados.sobrenome
+            
+            if dados_atualizados.email:
+                update_data["email"] = dados_atualizados.email.lower()
+            
+            if dados_atualizados.telefone:
+                update_data["telefone"] = dados_atualizados.telefone
+            
+            update_data["dataatualizacao"] = datetime.now()
+
+            if update_data:
+                resultado = Usuario.update_one(
+                    {"id": user_id},
+                    {"$set": update_data}
+                )
+                
+                if resultado.matched_count == 0:
+                    raise HTTPException(status_code=422, detail="Erro ao atualizar o usuário")
+
+                return {"message": "Usuário atualizado com sucesso!"}
+            else:
+                raise HTTPException(status_code=400, detail="Nenhum campo foi fornecido para atualização")
 
         except Exception as error:
             raise HTTPException(status_code=400, detail=str(error))
