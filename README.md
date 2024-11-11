@@ -8,3 +8,4 @@ Projeto final de Devops (Grupo 1)
 3. João Basílio
 4. Eduardo Francisco
 5. Letícia Queiroz
+6. Felipe Vilaça
