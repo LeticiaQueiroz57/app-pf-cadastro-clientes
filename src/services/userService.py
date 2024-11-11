@@ -11,13 +11,13 @@ class userService:
         try:
 
 
-            if not userModel.nome or userModel.nome.strip() == "":
+            if len(userModel.nome) == 0:
                 raise HTTPException(status_code=400, detail="O nome não pode ser vazio")
-            if not userModel.sobrenome or userModel.sobrenome.strip() == "":
+            if len(userModel.sobrenome) == 0:
                 raise HTTPException(status_code=400, detail="O sobrenome não pode ser vazio")
-            if not userModel.email or userModel.email.strip() == "":
+            if len(userModel.email) == 0:
                 raise HTTPException(status_code=400, detail="O email não pode ser vazio")
-            if not userModel.telefone or userModel.telefone.strip() == "":
+            if len(userModel.telefone) == 0:
                 raise HTTPException(status_code=400, detail="O telefone não pode ser vazio")
             
             if len(userModel.email) > 20:
