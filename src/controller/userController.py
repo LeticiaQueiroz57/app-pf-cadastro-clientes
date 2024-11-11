@@ -12,7 +12,7 @@ async def CriarDados(userModel: userModel):
     try:
         return await userService.CriarDados(userModel)
     except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))  # Garantir que o erro de validação retorne 422
+        raise HTTPException(status_code=422, detail=str(e))  
 
 
 @app_router.delete("/remover", status_code=200, tags=["Usuários"])
