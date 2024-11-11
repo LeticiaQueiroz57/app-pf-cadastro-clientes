@@ -20,11 +20,11 @@ class userService:
             if len(userModel.telefone) == 0:
                 raise HTTPException(status_code=400, detail="O telefone não pode ser vazio")
             
-            if len(userModel.email) > 20:
-                raise HTTPException(status_code=400, detail="O email não pode ter mais de 20 caracteres")
+            if len(userModel.email) > 50:
+                raise HTTPException(status_code=400, detail="O email não pode ter mais de 50 caracteres")
                 
-            if len(userModel.telefone) > 11:
-                raise HTTPException(status_code=400, detail="O telefone não pode ter mais de 11 caracteres")
+            if len(userModel.telefone) > 15:
+                raise HTTPException(status_code=400, detail="O telefone não pode ter mais de 15 caracteres")
                 
             email_duplicado = Usuario.find_one({"email": userModel.email.lower()})
             if email_duplicado:
@@ -98,12 +98,12 @@ class userService:
         try:
 
             
-            if dados_atualizados.email and len(dados_atualizados.email) > 20:
-                raise HTTPException(status_code=400, detail="O email não pode ter mais de 20 caracteres")
+            if dados_atualizados.email and len(dados_atualizados.email) > 50:
+                raise HTTPException(status_code=400, detail="O email não pode ter mais de 50 caracteres")
             
             
-            if dados_atualizados.telefone and len(dados_atualizados.telefone) > 11:
-                raise HTTPException(status_code=400, detail="O telefone não pode ter mais de 11 caracteres")
+            if dados_atualizados.telefone and len(dados_atualizados.telefone) > 15:
+                raise HTTPException(status_code=400, detail="O telefone não pode ter mais de 15 caracteres")
 
 
             if dados_atualizados.telefone and not re.fullmatch(r'\d+', dados_atualizados.telefone):
